@@ -1,5 +1,8 @@
 'use strict'
 
+const Mail = use('Mail')
+const Helpers = use('Helpers')
+
 class NewTaskMail {
   // If this getter isn't provided, it will default to 1.
   // Increase this number to increase processing concurrency.
@@ -13,8 +16,24 @@ class NewTaskMail {
   }
 
   // This is where the work is done.
-  async handle (data) {
-    console.log('NewTaskMail-job started')
+  async handle ({email, username, title, file }) {
+    console.log(`Job: ${NewTaskMail}`)
+    await Mail.send(
+      ['emails.new_task'],
+      {username, title, hasAttachment: !!file },
+      message =>{
+          message
+              .to(email)
+              .from('lucassoaresgranja@yahoo.com.br', 'Lucas | Infoluc')
+              .subject('Nova Tarefa para Você')
+
+          if(file) {
+              message.attach(Helpers.tmpPath(`uploads/${file.file}`), {
+                  filename: file.name
+              })
+          }
+      }
+  )
   }
 }
 
